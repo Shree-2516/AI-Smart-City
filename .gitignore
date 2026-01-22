@@ -1,63 +1,26 @@
-# ============================
 # Python
-# ============================
 __pycache__/
-*.py[cod]
+*.pyc
 *.pyo
 *.pyd
 
-# ============================
-# Virtual Environment
-# ============================
+# Virtual environment
 .venv/
 venv/
-env/
 
-# ============================
-# Gradio / Runtime
-# ============================
+# Gradio
 .gradio/
 
-# ============================
-# YOLO / Training Outputs
-# ============================
-runs/
-weights/
-*.onnx
-*.engine
-
-# ============================
-# Dataset (local / large files)
-# ============================
+# Dataset & runtime files
 data/
-datasets/
+runs/
 
-# ============================
-# Jupyter Notebook
-# ============================
-.ipynb_checkpoints/
+# Generated reports (images)
+static/reports/
 
-# ============================
-# OS / Editor Files
-# ============================
-.DS_Store
-Thumbs.db
-
-# ============================
-# Environment / Secrets
-# ============================
-.env
-.env.*
-
-# ============================
-# Logs & Temporary Files
-# ============================
-*.log
-tmp/
-temp/
-
-# ============================
-# IDE / Editor Settings
-# ============================
+# OS / Editor
 .vscode/
-.idea/
+.DS_Store
+
+# Jupyter
+.ipynb_checkpoints/

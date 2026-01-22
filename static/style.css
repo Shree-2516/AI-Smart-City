@@ -1,0 +1,45 @@
+body {
+    background-color: #f5f6f8;
+}
+
+/* Consistent image size */
+.result-image {
+    width: 100%;
+    max-width: 500px;
+    max-height: 350px;
+    object-fit: contain;
+    background: #000;
+}
+
+/* Chart size */
+.chart-container {
+    width: 260px;
+    height: 260px;
+}
+
+/* Severity badge */
+.severity {
+    display: inline-block;
+    padding: 8px 14px;
+    border-radius: 20px;
+    font-weight: bold;
+    color: white;
+    margin-top: 10px;
+}
+
+.severity.low {
+    background-color: #198754; /* green */
+}
+
+.severity.medium {
+    background-color: #ffc107; /* yellow */
+    color: #000;
+}
+
+.severity.high {
+    background-color: #dc3545; /* red */
+}
+#cameraContainer video {
+    max-width: 500px;
+    background: #000;
+}
