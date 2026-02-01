@@ -7,7 +7,7 @@ The system uses a custom-trained YOLOv8 model and provides an interactive Gradio
 
 # 📌 Project Status
 
-🚧 In Progress — Production-Ready MVP
+🚧 In Progress — Production-Ready MVP 
 
 End-to-end ML pipeline completed (training → inference → UI)
 
