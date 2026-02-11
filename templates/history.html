@@ -1,168 +1,487 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <title>Report History</title>
 
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css" rel="stylesheet">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+    <!-- ===============================
+         CORE STYLES
+    ================================ -->
+
+    <!-- Bootstrap -->
+    <link href="/static/lib/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Bootstrap Icons -->
+    <link href="/static/lib/css/bootstrap-icons.css" rel="stylesheet">
+
+    <!-- Main App Theme -->
+    <link rel="stylesheet" href="/static/style.css">
+
+    <!-- History Page Specific Theme -->
+    <link rel="stylesheet" href="/static/history.css">
+
+    <!-- Favicon -->
+    <link rel="icon"
+        href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🛡️</text></svg>">
+
+
+    <!-- ===============================
+         LIBRARIES
+    ================================ -->
+
+    <!-- Chart.js -->
+    <script src="/static/lib/js/chart.umd.min.js"></script>
+
+    <!-- Leaflet (Maps + Heatmap) -->
+    <link rel="stylesheet" href="/static/lib/css/leaflet.css" />
+    <script src="/static/lib/js/leaflet.js"></script>
+    <script src="/static/lib/js/leaflet-heat.js"></script>
 </head>
+
 <body>
 
-<nav class="navbar navbar-dark bg-dark">
-    <div class="container">
-        <span class="navbar-brand">Smart City – Report History</span>
-        <a href="/" class="btn btn-outline-light">Back</a>
-    </div>
-</nav>
-
-<div class="container my-4">
-
-    <!-- ================= SUMMARY SECTION ================= -->
-    <h3 class="mb-3">Overall Report Summary</h3>
-
-    <div class="row text-center mb-4">
-        <div class="col-md-3">
-            <div class="card shadow-sm">
-                <div class="card-body">
-                    <h6>Total Reports</h6>
-                    <h4>{{ stats.total_reports }}</h4>
-                </div>
-            </div>
+    <!-- =====================================================
+     NAVBAR
+===================================================== -->
+    <nav class="navbar navbar-dark custom-navbar">
+        <div class="container-fluid px-4 d-flex justify-content-between align-items-center">
+            <span class="navbar-brand navbar-title">
+                Smart City - Report History
+            </span>
+            <a href="/" class="btn btn-outline-light btn-sm">
+                &larr; Back
+            </a>
         </div>
+    </nav>
 
-        <div class="col-md-3">
-            <div class="card shadow-sm">
-                <div class="card-body">
-                    <h6>Total Garbage</h6>
-                    <h4>{{ stats.total_garbage }}</h4>
-                </div>
-            </div>
-        </div>
+    <div class="container-fluid dashboard-container history-wrapper px-4">
 
-        <div class="col-md-3">
-            <div class="card shadow-sm">
-                <div class="card-body">
-                    <h6>Total Potholes</h6>
-                    <h4>{{ stats.total_pothole }}</h4>
-                </div>
-            </div>
-        </div>
+        <!-- =====================================================
+         SUMMARY CARDS (COUNT ANIMATION)
+    ====================================================== -->
+        <div class="history-section">
+            <h4 class="mb-4 fw-semibold text-light">Overall Report Summary</h4>
 
-        <div class="col-md-3">
-            <div class="card shadow-sm">
-                <div class="card-body">
-                    <h6>No Issue Reports</h6>
-                    <h4>{{ stats.no_issue_reports }}</h4>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- ================= PIE CHART ================= -->
-    <div class="row justify-content-center mb-5">
-        <div class="col-md-4">
-            <canvas id="summaryChart"></canvas>
-        </div>
-    </div>
-
-    <!-- ================= DELETE ALL ================= -->
-    <div class="d-flex justify-content-between align-items-center mb-3">
-        <h3>Saved Reports</h3>
-        <form action="/delete_all" method="post"
-              onsubmit="return confirm('Delete ALL reports?')">
-            <button class="btn btn-danger">Delete All Reports</button>
-        </form>
-    </div>
-
-    <!-- ================= REPORT CARDS ================= -->
-    {% if reports %}
-        <div class="row">
-            {% for r in reports %}
-                <div class="col-md-4 mb-4">
-                    <div class="card shadow-sm h-100">
-
-                        <img src="/{{ r.image_path }}"
-                             class="card-img-top"
-                             style="max-height:200px; object-fit:cover;">
-
-                        <div class="card-body">
-                            <p class="small text-muted">{{ r.created_at }}</p>
-
-                            <p>
-                                <strong>Issues:</strong><br>
-                                {% if r.summary %}
-                                    {% for k, v in r.summary.items() %}
-                                        {{ v }} {{ k }}<br>
-                                    {% endfor %}
-                                {% else %}
-                                    No issues detected
-                                {% endif %}
-                            </p>
-
-                            <span class="badge
-                                {% if r.severity == 'Low' %}bg-success
-                                {% elif r.severity == 'Medium' %}bg-warning text-dark
-                                {% else %}bg-danger{% endif %}">
-                                Severity: {{ r.severity }}
-                            </span>
-
-                            <form action="/delete/{{ r.id }}" method="post"
-                                  class="mt-3"
-                                  onsubmit="return confirm('Delete this report?')">
-                                <button class="btn btn-sm btn-outline-danger">
-                                    Delete
-                                </button>
-                            </form>
-                        </div>
-
+            <div class="row text-center">
+                <div class="col-md-3">
+                    <div class="summary-card">
+                        <i class="bi bi-file-earmark-text fs-4 text-primary"></i>
+                        <h6>Total Reports</h6>
+                        <h4 class="count" data-target="{{ stats.total_reports }}">0</h4>
                     </div>
                 </div>
-            {% endfor %}
+
+                <div class="col-md-3">
+                    <div class="summary-card">
+                        <i class="bi bi-trash fs-4 text-danger"></i>
+                        <h6>Total Garbage</h6>
+                        <h4 class="count" data-target="{{ stats.total_garbage }}">0</h4>
+                    </div>
+                </div>
+
+                <div class="col-md-3">
+                    <div class="summary-card">
+                        <i class="bi bi-cone-striped fs-4 text-primary"></i>
+                        <h6>Total Potholes</h6>
+                        <h4 class="count" data-target="{{ stats.total_pothole }}">0</h4>
+                    </div>
+                </div>
+
+                <div class="col-md-3">
+                    <div class="summary-card">
+                        <i class="bi bi-check-circle fs-4 text-success"></i>
+                        <h6>No Issue Reports</h6>
+                        <h4 class="count" data-target="{{ stats.no_issue_reports }}">0</h4>
+                    </div>
+                </div>
+            </div>
         </div>
-    {% else %}
-        <p>No reports found.</p>
-    {% endif %}
 
-</div>
+        <!-- =====================================================
+         ISSUE DISTRIBUTION (PIE CHART)
+    ====================================================== -->
+        <div class="history-section text-center">
+            <h4 class="mb-3 fw-semibold text-light">Issue Distribution</h4>
+            <div class="chart-box">
+                <canvas id="summaryChart"></canvas>
+            </div>
+        </div>
 
-<!-- Pass summary data safely -->
-<script type="application/json" id="summaryData">
-{
-    "garbage": {{ stats.total_garbage }},
-    "pothole": {{ stats.total_pothole }},
-    "no_issue": {{ stats.no_issue_reports }}
-}
-</script>
+        <!-- =====================================================
+         HEATMAP
+    ====================================================== -->
+        <div class="container">
+            <div class="history-section">
+                <h4 class="mb-3 fw-semibold text-light">
+                    Severity-Weighted Issue Heatmap
+                </h4>
+                <div id="heatmap" style="height:420px;border-radius:12px;"></div>
+            </div>
+        </div>
 
-<script>
-const data = JSON.parse(
-    document.getElementById("summaryData").textContent
-);
+        <!-- =====================================================
+         FILTERS & SEARCH
+    ====================================================== -->
+        <h4 class="mb-4 fw-semibold text-light">
+            Detailed Report Log
+            <span class="fs-6 text-white-50 ms-2">
+                (<span id="filteredCount">0</span> records found)
+            </span>
+        </h4>
 
-const ctx = document.getElementById("summaryChart");
+        <div class="filters-bar">
+            <!-- Row 1: Search -->
+            <div class="row g-3 mb-3">
+                <div class="col-md-12">
+                    <div class="search-wrapper">
+                        <i class="bi bi-search"></i>
+                        <input type="text" id="searchInput" class="form-control custom-search"
+                            placeholder="Search report summary...">
+                    </div>
+                </div>
+            </div>
 
-new Chart(ctx, {
-    type: "pie",
-    data: {
-        labels: ["Garbage", "Pothole", "No Issue"],
-        datasets: [{
-            data: [
-                data.garbage,
-                data.pothole,
-                data.no_issue
-            ],
-            backgroundColor: ["#dc3545", "#0d6efd", "#198754"]
-        }]
-    },
-    options: {
-        plugins: {
-            legend: { position: "bottom" }
+            <!-- Row 2: Filters -->
+            <div class="row g-3">
+                <div class="col-md-2">
+                    <label class="text-white small mb-1">From Date</label>
+                    <input type="date" id="dateFrom" class="form-control filter-input">
+                </div>
+                <div class="col-md-2">
+                    <label class="text-white small mb-1">To Date</label>
+                    <input type="date" id="dateTo" class="form-control filter-input">
+                </div>
+                <div class="col-md-2">
+                    <label class="text-white small mb-1">Department</label>
+                    <select id="filterDepartment" class="form-select filter-select">
+                        <option value="all">All</option>
+                        <option value="Roads Department">Roads Dept</option>
+                        <option value="Department of Environment">Environment</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label class="text-white small mb-1">Severity</label>
+                    <select id="filterSeverity" class="form-select filter-select">
+                        <option value="all">All</option>
+                        <option value="High">High</option>
+                        <option value="Medium">Medium</option>
+                        <option value="Low">Low</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label class="text-white small mb-1">Type</label>
+                    <select id="filterType" class="form-select filter-select">
+                        <option value="all">All</option>
+                        <option value="image">Image</option>
+                        <option value="video">Video</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label class="text-white small mb-1">Actions</label>
+                    <form action="/delete_all" method="POST"
+                        onsubmit="return confirm('WARNING: This will delete ALL reports and cannot be undone. Proceed?');">
+                        <button class="btn btn-outline-danger w-100">
+                            <i class="bi bi-trash3 me-1"></i> Reset
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        {% if reports %}
+        <div class="table-responsive">
+            <table class="table table-hover" id="reportsTable">
+                <thead>
+                    <tr>
+                        <th>Evidence</th>
+                        <th>Department</th>
+                        <th>Severity</th>
+                        <th>Issues Detected</th>
+                        <th>Date & Time</th>
+                        <th>Location</th>
+                        <th class="text-end">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for r in reports %}
+                    <tr data-department="{{ r.department }}" data-severity="{{ r.severity }}" data-type="{{ r.type }}"
+                        data-date="{{ r.created_at }}">
+                        <td>
+                            <img src="/{{ r.image_path }}" class="img-thumbnail-custom"
+                                onclick="showImageModal('/{{ r.image_path }}')" alt="Evidence">
+                        </td>
+                        <td>
+                            <span class="badge rounded-pill
+                                {% if 'Roads' in r.department %}bg-warning text-dark
+                                {% elif 'Environment' in r.department %}bg-danger
+                                {% else %}bg-secondary{% endif %}">
+                                {{ r.department }}
+                            </span>
+                        </td>
+                        <td>
+                            <span class="severity {{ r.severity|lower }}">{{ r.severity }}</span>
+                        </td>
+                        <td class="report-summary">
+                            {% if r.summary %}
+                            {% for k, v in r.summary.items() %}
+                            <div><span class="fw-bold">{{ v }}</span> {{ k }}</div>
+                            {% endfor %}
+                            {% else %}
+                            <span class="text-muted"><i class="bi bi-check-circle me-1"></i>No issues</span>
+                            {% endif %}
+                        </td>
+                        <td class="text-nowrap small text-muted">{{ r.created_at }}</td>
+                        <td>
+                            {% if r.latitude %}
+                            <a href="https://www.google.com/maps?q={{ r.latitude }},{{ r.longitude }}" target="_blank"
+                                class="btn btn-sm btn-outline-info border-0">
+                                <i class="bi bi-geo-alt-fill"></i> View
+                            </a>
+                            {% else %}
+                            <span class="text-muted small">-</span>
+                            {% endif %}
+                        </td>
+                        <td class="text-end">
+                            <form action="/delete-report/{{ r.id }}" method="POST" class="d-inline">
+                                <button type="submit" class="btn btn-sm btn-outline-danger border-0" title="Delete"
+                                    onclick="return confirm('Delete this report?');">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="text-center p-5">
+            <i class="bi bi-inbox fs-1 text-muted opacity-25"></i>
+            <p class="text-muted mt-3">No reports found in history.</p>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Image Preview Modal -->
+    <div class="modal fade" id="imageModal" tabindex="-1">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content modal-content-glass">
+                <div class="modal-header">
+                    <h5 class="modal-title">Evidence Preview</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body text-center p-0 bg-black">
+                    <img id="modalImageDisplay" src="" class="modal-img-full">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- =====================================================
+     DATA BOOTSTRAP (FROM FLASK)
+===================================================== -->
+    <script id="stats-data" type="application/json">
+        {{ stats | tojson | safe }}
+    </script>
+    <script id="heatmap-data" type="application/json">
+        {{ heatmap_points | tojson | safe }}
+    </script>
+    <script>
+        const summary = JSON.parse(document.getElementById('stats-data').textContent);
+        const heatmapData = JSON.parse(document.getElementById('heatmap-data').textContent);
+    </script>
+
+    <!-- =====================================================
+     PIE CHART CONFIG
+===================================================== -->
+    <script>
+        new Chart(document.getElementById("summaryChart"), {
+            type: "pie",
+            data: {
+                labels: ["Garbage", "Pothole", "No Issue"],
+                datasets: [{
+                    data: [
+                        summary.total_garbage,
+                        summary.total_pothole,
+                        summary.no_issue_reports
+                    ],
+                    backgroundColor: ["#dc3545", "#0d6efd", "#198754"],
+                    borderColor: "#ffffff",
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                plugins: {
+                    legend: {
+                        position: "top",
+                        labels: {
+                            color: "#eaf2ff",
+                            font: { size: 14, weight: "600" },
+                            padding: 20
+                        }
+                    }
+                }
+            }
+        });
+    </script>
+
+    <!-- =====================================================
+     HEATMAP INIT
+===================================================== -->
+    <script>
+        if (heatmapData.length) {
+            const heatmap = L.map("heatmap")
+                .setView([heatmapData[0][0], heatmapData[0][1]], 13);
+
+            L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png")
+                .addTo(heatmap);
+
+            L.heatLayer(heatmapData, {
+                radius: 35,
+                blur: 25,
+                maxZoom: 16
+            }).addTo(heatmap);
         }
-    }
-});
-</script>
+    </script>
 
+    <!-- =====================================================
+     FILTERS & MODAL LOGIC
+===================================================== -->
+    <script>
+        // Image Modal
+        let imageModalInstance;
 
+        function showImageModal(src) {
+            const modalEl = document.getElementById('imageModal');
+            if (!imageModalInstance) {
+                imageModalInstance = new bootstrap.Modal(modalEl);
+                modalEl.addEventListener('hide.bs.modal', () => {
+                    if (document.activeElement instanceof HTMLElement) {
+                        document.activeElement.blur();
+                    }
+                });
+            }
+            document.getElementById('modalImageDisplay').src = src;
+            imageModalInstance.show();
+        }
+
+        // Filtering Logic
+        document.addEventListener("DOMContentLoaded", () => {
+            const searchInput = document.getElementById('searchInput');
+            const filterDept = document.getElementById('filterDepartment');
+            const filterSev = document.getElementById('filterSeverity');
+            const filterType = document.getElementById('filterType');
+            const dateFromIn = document.getElementById('dateFrom');
+            const dateToIn = document.getElementById('dateTo');
+            const tableRows = document.querySelectorAll('#reportsTable tbody tr');
+
+            function filterTable() {
+                const term = searchInput ? searchInput.value.toLowerCase() : "";
+                const dept = filterDept ? filterDept.value : "all";
+                const sev = filterSev ? filterSev.value : "all";
+                const type = filterType ? filterType.value : "all";
+
+                const dFrom = dateFromIn.value ? new Date(dateFromIn.value) : null;
+                // Set to start of day
+                if (dFrom) dFrom.setHours(0, 0, 0, 0);
+
+                const dTo = dateToIn.value ? new Date(dateToIn.value) : null;
+                // Set to end of day
+                if (dTo) dTo.setHours(23, 59, 59, 999);
+
+                let visibleCount = 0;
+
+                tableRows.forEach(row => {
+                    const text = row.innerText.toLowerCase();
+                    const rowDept = row.dataset.department || "";
+                    const rowSev = row.dataset.severity || "";
+                    const rowType = row.dataset.type || "";
+                    const rowDateStr = row.dataset.date || "";
+                    const rowDate = rowDateStr ? new Date(rowDateStr) : null;
+
+                    let match = true;
+
+                    // Search match
+                    if (term && !text.includes(term)) match = false;
+
+                    // Dropdown matches
+                    // Convert both to lower case for case-insensitive comparison
+                    const filterDeptVal = dept.toLowerCase().trim();
+                    const rowDeptVal = rowDept.toLowerCase().trim();
+
+                    if (dept !== 'all' && !rowDeptVal.includes(filterDeptVal)) match = false;
+                    if (sev !== 'all' && rowSev !== sev) match = false;
+                    if (type !== 'all' && rowType !== type) match = false;
+
+                    // Date Range match
+                    if (rowDate) {
+                        if (dFrom && rowDate < dFrom) match = false;
+                        if (dTo && rowDate > dTo) match = false;
+                    }
+
+                    if (match) visibleCount++;
+                    row.style.display = match ? '' : 'none';
+                });
+
+                // Update count
+                document.getElementById('filteredCount').innerText = visibleCount;
+            }
+
+            // Initial count
+            filterTable();
+
+            // Attach listeners
+            if (searchInput) searchInput.addEventListener('keyup', filterTable);
+            if (filterDept) filterDept.addEventListener('change', filterTable);
+            if (filterSev) filterSev.addEventListener('change', filterTable);
+            if (filterType) filterType.addEventListener('change', filterTable);
+            if (dateFromIn) dateFromIn.addEventListener('change', filterTable);
+            if (dateToIn) dateToIn.addEventListener('change', filterTable);
+        });
+    </script>
+
+    <!-- =====================================================
+     COUNT-UP ANIMATION
+===================================================== -->
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            document.querySelectorAll(".count").forEach(counter => {
+                const target = +counter.dataset.target;
+                const duration = 900;
+                const start = performance.now();
+
+                function update(now) {
+                    const progress = Math.min((now - start) / duration, 1);
+                    const eased = 1 - Math.pow(1 - progress, 3);
+                    counter.textContent = Math.floor(eased * target);
+
+                    if (progress < 1) requestAnimationFrame(update);
+                    else counter.textContent = target;
+                }
+
+                requestAnimationFrame(update);
+            });
+        });
+    </script>
+
+    <!-- Footer -->
+    <!-- Footer -->
+    <footer class="custom-footer text-center mt-3 py-3">
+        <div class="container d-flex justify-content-center align-items-center gap-3">
+            <a href="https://www.linkedin.com/in/shreeyash-paraj/" target="_blank" class="text-white-50 hover-white">
+                <i class="bi bi-linkedin fs-6"></i>
+            </a>
+            <a href="mailto:shreeyash2573@gmail.com" class="text-white-50 hover-white">
+                <i class="bi bi-envelope fs-6"></i>
+            </a>
+            <small class="text-white-50 border-start border-secondary ps-3 ms-2">
+                &copy; 2026 All rights reserved Shreeyash Paraj.
+            </small>
+        </div>
+    </footer>
+
+    <script src="/static/lib/js/bootstrap.bundle.min.js"></script>
 </body>
+
 </html>

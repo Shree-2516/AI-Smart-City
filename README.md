@@ -1,80 +1,133 @@
-# 🏙️ Smart City Object Detection
-Garbage & Pothole Detection using YOLOv8 and Gradio
+🏙️ Smart City Issue Detection System
 
-An AI-powered computer vision application that detects garbage dumps and road potholes from images to support smart city infrastructure monitoring.
+Garbage & Pothole Detection using YOLOv8 + Flask
 
-The system uses a custom-trained YOLOv8 model and provides an interactive Gradio web interface for real-time inference and summarized insights.
+An AI-powered computer vision web application that detects garbage dumps and road potholes from images to support smart city infrastructure monitoring.
 
-# 📌 Project Status
+The system uses a custom-trained YOLOv8 model and provides a Flask-based web dashboard for image upload, live camera capture, issue severity analysis, report history, and analytics.
 
 🚧 In Progress — Production-Ready MVP 
+📌 Project Status
 
-End-to-end ML pipeline completed (training → inference → UI)
+🚀 Production-Ready MVP
 
-Gradio-based inference application fully functional
+✔ End-to-end ML pipeline completed (training → inference → web UI)
+✔ Flask-based web application with database integration
+✔ Report history, analytics dashboard, and severity scoring implemented
+✔ Git-clean project structure following industry standards
 
 Current model performance: ~60% mAP
+Ongoing improvements through data-centric optimizations
 
-Actively improving accuracy through data-centric optimizations
+This project is published as a real-world MVP demonstrating ML + Backend + UI integration.
 
-This project is intentionally published as an MVP to demonstrate real-world ML system design and iterative improvement.
-
-#  Project Highlights
+✨ Key Features
+🔍 Detection
 
 Custom-trained YOLOv8m object detection model
 
-Dataset annotated & augmented using Roboflow
+Detects:
 
-Model training performed on Google Colab (GPU)
+🕳️ Potholes
 
-Interactive Gradio UI for image-based detection
+🗑️ Garbage
 
-Adjustable Confidence and IoU thresholds
+Bounding box visualization
 
-Automatic detection summary (count-based)
+Confidence-based filtering
 
-Clean, industry-aligned project structure
+🖥️ Web Application (Flask)
 
-# 🧠 Problem Statement
+Image upload for issue reporting
 
-Urban infrastructure issues such as potholes and garbage accumulation negatively affect safety, cleanliness, and quality of life.
-Manual reporting systems are often slow, inconsistent, and reactive.
+Live camera capture support
 
-This project automates the detection of these issues using deep learning-based object detection, enabling:
+Automatic detection summary
+
+Severity classification (Low / Medium / High)
+
+Responsive UI using Bootstrap 5
+
+📊 Analytics & Reports
+
+Automatic report saving
+
+SQLite database integration
+
+Report history page
+
+Overall analytics dashboard:
+
+Total reports
+
+Total potholes detected
+
+Total garbage detected
+
+No-issue reports
+
+Pie chart visualization using Chart.js
+
+Delete individual reports or all reports
+
+🧠 Problem Statement
+
+Urban infrastructure issues such as potholes and garbage accumulation negatively impact safety, cleanliness, and quality of life.
+
+Traditional manual reporting systems are:
+
+Slow
+
+Inconsistent
+
+Reactive
+
+This project automates detection using deep learning–based object detection, enabling:
 
 Faster identification of infrastructure issues
 
-Data-driven decision making
+Centralized issue tracking
+
+Data-driven decision-making
 
 Scalable smart city monitoring solutions
 
-# 🛠️ Tech Stack
+🛠️ Tech Stack
 Category	Technology
 Language	Python 3.9+
 Model	YOLOv8 (Ultralytics)
+Backend	Flask
+Frontend	HTML, CSS, Bootstrap 5
+Charts	Chart.js
+Database	SQLite
 Dataset	Roboflow
-UI	Gradio
 Image Processing	Pillow
 Training	Google Colab (GPU)
 
-# 📂 Project Structure
-Smart-City-Object-Detection/
+📂 Project Structure
+AI-Smart-City/
 │
-├── .gradio/                    # Gradio runtime cache (ignored in Git)
-├── .venv/                      # Virtual environment (local, ignored)
+├── app.py                     # Flask application (production inference)
+├── yolov8m.pt                 # Custom-trained YOLOv8 model
+├── reports.db                 # SQLite database (report history)
 │
-├── data/                       # Dataset (optional / reference)
+├── templates/
+│   ├── index.html             # Main detection UI
+│   └── history.html           # Report history & analytics
 │
-├── app.py                      # Gradio application (deployment)
-├── yolov8m.pt                  # Custom-trained YOLOv8 model
+├── static/
+│   ├── style.css              # UI styling
+│   ├── script.js              # Frontend logic (upload, camera, charts)
+│   └── reports/               # Saved report images (ignored in Git)
 │
-├── model-training.ipynb        # Model training notebook (Colab)
-├── notebook.ipynb              # Evaluation & inference testing
+├── model-training.ipynb        # Training notebook (Google Colab)
+├── notebook.ipynb             # Evaluation & inference testing
 │
-├── requirements.txt            # Dependencies
-└── README.md                   # Project documentation
+├── requirements.txt           # Dependencies
+├── .gitignore                 # Ignored runtime & generated files
+└── README.md                  # Project documentation
 
-# 📊 Dataset & Annotation
+📊 Dataset & Annotation
 
 Platform: Roboflow
 
@@ -84,7 +137,7 @@ pothole
 
 garbage
 
-Annotation & preprocessing techniques:
+Annotation & preprocessing:
 
 Bounding box annotation
 
@@ -94,7 +147,7 @@ Train / validation / test split
 
 Dataset size: ~2,000+ images
 
-# 🧪 Model Training
+🧪 Model Training
 
 Architecture: YOLOv8m
 
@@ -104,112 +157,111 @@ Environment: Google Colab (GPU)
 
 Training Notebook: model-training.ipynb
 
-# ⚠️ Note:
-Training notebooks are designed for GPU-based execution and are not intended for direct local execution without GPU support.
+⚠️ Note: Training notebooks are GPU-oriented and not intended for local execution without GPU support.
 
-# 📊 Model Evaluation (Current)
+📊 Model Evaluation (Current)
+Metric	Value
+Precision	~0.62
+Recall	~0.58
+mAP@0.5	~0.60
 
-Precision: ~0.62
+Metrics are expected to improve with dataset expansion and tuning.
 
-Recall: ~0.58
+🖥️ Application Workflow
 
-mAP@0.5: ~0.60
-
-Metrics are expected to improve with further dataset expansion, augmentation, and hyperparameter tuning.
-
-# 🖥️ Application Workflow
-
-User uploads an image via the Gradio UI
+User uploads an image or captures via camera
 
 YOLOv8 model performs object detection
 
 Bounding boxes are drawn on the image
 
-Detected objects are counted per class
+Issues are counted per class
 
-A natural-language summary is generated
+Severity is calculated automatically
 
-# 🎯 Gradio Interface Features
+Report is saved to database
 
-Image upload (JPG / PNG)
+Analytics dashboard updates in real-time
 
-Confidence threshold slider
-
-IoU threshold slider
-
-Detection visualization
-
-Automatic textual summary
-
-# ⚙️ Installation & Usage
-Install Dependencies
+⚙️ Installation & Usage
+1️⃣ Install Dependencies
 pip install -r requirements.txt
 
-Run the Application
-python app.py after the all notebook execute
+2️⃣ Run the Application
+python app.py
 
-Gradio will launch a local web application and provide a shareable link.
+3️⃣ Open in Browser
+http://127.0.0.1:5000
 
-# 📈 Output Example
+📈 Example Output
 
-Detected: 2 potholes and 1 garbage dump
+Detected: 2 potholes and 1 garbage
 
-Visual bounding boxes on the image
+Severity: Medium
 
-Text summary:
+Visual bounding boxes on image
 
-“Total of 3 issues detected: 2 potholes and 1 garbage detected.”
+Summary:
 
-# 🧩 Challenges & Learnings
+“Total of 3 issues detected: 2 potholes and 1 garbage.”
 
-Challenges faced:
+🧩 Challenges & Learnings
+Challenges
 
-High variability in pothole shapes and lighting conditions
+High variability in pothole shapes and lighting
 
-Class imbalance between garbage and pothole samples
+Class imbalance between pothole and garbage
 
-Limited annotated data affecting generalization
+Limited annotated data
 
-CPU-based inference latency during testing
+CPU-based inference latency
 
-Key learnings:
+Key Learnings
 
 Importance of data-centric AI development
 
-Evaluating models beyond raw accuracy
+Backend + ML integration challenges
 
-Practical deployment tradeoffs in real-world ML systems
+Designing scalable ML web applications
 
-# 📈 Accuracy Improvement Plan
+Managing inference pipelines in production
+
+📈 Accuracy Improvement Plan
 
 Expand dataset to 5,000+ images
 
 Add hard-negative samples
 
-Perform YOLOv8 hyperparameter tuning
+YOLOv8 hyperparameter tuning
 
-Train for additional epochs with early stopping
+Train with early stopping
 
 Experiment with YOLOv8l architecture
 
-# 🔐 Limitations
+🔐 Limitations
 
 Image-based inference only
 
-No real-time video or CCTV stream support yet
+No real-time video stream yet
 
 Performance depends on image quality
 
-CPU inference is slower than GPU
+CPU inference slower than GPU
 
-# 🚧 Future Enhancements
+🚧 Future Enhancements
 
 Real-time video & CCTV stream detection
 
 GPS-based issue mapping
 
-Database integration for issue tracking
+Role-based authentication (admin / user)
 
-Web dashboard for municipal authorities
+REST API for mobile app integration
 
-Mobile application integration
+Cloud deployment (AWS / GCP)
+
+👤 Author
+
+Shreeyash Paraj
+Data Science Intern | AI & Backend Development
+Project built to demonstrate real-world ML system design & deployment
